@@ -1,4 +1,4 @@
-const host = 'http://xxx.xxx'
+const host = 'http://baidu.com'
 const config = {
   host
 }

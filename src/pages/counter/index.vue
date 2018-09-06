@@ -7,7 +7,7 @@
     </p>
 
     <a href="/pages/index/main" class="home">去往首页</a>
-    <van-button>测试</van-button>
+    <van-button @click="getTask">请求</van-button>
     <van-badge title="标签名称" info="99" />
   </div>
 </template>
@@ -15,7 +15,7 @@
 <script>
 // Use Vuex
 // import store from './store'
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
   computed: {
@@ -27,7 +27,10 @@ export default {
     ...mapMutations([
       'increment',
       'decrement'
-    ])
+    ]),
+    ...mapActions({
+      getTask: 'getTask' // 将 `this.add()` 映射为 `this.$store.dispatch('increment')`
+    })
   }
 }
 </script>
