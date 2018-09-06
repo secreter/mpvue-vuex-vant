@@ -16,18 +16,19 @@
 // Use Vuex
 // import store from './store'
 import { mapState, mapMutations, mapActions } from 'vuex'
+import * as types from '../../store/task/mutation-types'
 
 export default {
   computed: {
-    ...mapState([
-      'count'
-    ])
+    ...mapState({
+      count: state => state.task.count
+    })
   },
   methods: {
-    ...mapMutations([
-      'increment',
-      'decrement'
-    ]),
+    ...mapMutations({
+      increment: types.INCREMENT,
+      decrement: types.DECREMENT
+    }),
     ...mapActions({
       getTask: 'getTask' // 将 `this.add()` 映射为 `this.$store.dispatch('increment')`
     })
