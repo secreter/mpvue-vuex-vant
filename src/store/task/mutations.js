@@ -1,4 +1,5 @@
 import * as types from './mutation-types'
+import {setCookies, getCookies} from '../../utils/cookies'
 const matations = {
   /**
    * state:当前状态树
@@ -9,9 +10,11 @@ const matations = {
   },
   [types.INCREMENT]: (state) => {
     state.count += 1
+    setCookies('test', {a: 1}, 10)
   },
   [types.DECREMENT]: (state) => {
     state.count -= 1
+    console.log(getCookies('test'))
   }
 }
 

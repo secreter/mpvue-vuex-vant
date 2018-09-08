@@ -13,6 +13,7 @@
     "lint:fix": "eslint --ext .js,.vue src --fix"
   },
   "dependencies": {
+    "dayjs": "^1.7.5",
     "flyio": "^0.6.1",
     "mpvue": "^1.0.11",
     "qs": "^6.5.2",
