@@ -2,7 +2,7 @@
 
 > A Mpvue+vuex+vant+fly project
 
-## support Cookies
+## support Cookies,vuex-persistedstate
 
 ## Build Setup
 
