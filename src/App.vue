@@ -7,6 +7,35 @@ export default {
     wx.setStorageSync('logs', logs)
 
     console.log('app created and cache logs by setStorageSync')
+  },
+  onLaunch () {
+    wx.getNetworkType({
+      success (res) {
+        if (res.networkType === 'none') {
+          wx.showToast({
+            icon: 'none',
+            duration: 3000,
+            title: '网络连接已断开，请重新连接网络！'
+          })
+        }
+      }
+    })
+    wx.onNetworkStatusChange((res) => {
+      if (res.isConnected) {
+        this.init()
+        wx.showToast({
+          icon: 'none',
+          duration: 2000,
+          title: '网络已恢复！'
+        })
+      } else {
+        wx.showToast({
+          icon: 'none',
+          duration: 3000,
+          title: '网络连接已断开，请重新连接网络！'
+        })
+      }
+    })
   }
 }
 </script>
