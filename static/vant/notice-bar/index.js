@@ -1,21 +1,11 @@
-const VALID_MODE = ['closeable', 'link']
-const FONT_COLOR = '#f60'
-const BG_COLOR = '#fff7cc'
-
-Component({
-  options: {
-    addGlobalClass: true
-  },
-
-  externalClasses: ['custom-class'],
-
-  properties: {
+import { VantComponent } from '../common/component';
+var FONT_COLOR = '#ed6a0c';
+var BG_COLOR = '#fffbe8';
+VantComponent({
+  props: {
     text: {
       type: String,
-      value: '',
-      observer () {
-        this.setData({}, this._init)
-      }
+      value: ''
     },
     mode: {
       type: String,
@@ -54,7 +44,6 @@ Component({
       value: BG_COLOR
     }
   },
-
   data: {
     show: true,
     hasRightIcon: false,
@@ -65,117 +54,107 @@ Component({
     resetAnimation: null,
     timer: null
   },
-
-  attached () {
-    const { mode } = this.data
-    if (mode && this._checkMode(mode)) {
-      this.setData({
-        hasRightIcon: true
-      })
+  watch: {
+    text: function text() {
+      this.set({}, this.init);
     }
   },
-
-  detached () {
-    const { timer } = this.data
-    timer && clearTimeout(timer)
+  created: function created() {
+    if (this.data.mode) {
+      this.set({
+        hasRightIcon: true
+      });
+    }
   },
-
+  destroyed: function destroyed() {
+    var timer = this.data.timer;
+    timer && clearTimeout(timer);
+  },
   methods: {
-    _checkMode (val) {
-      const isValidMode = ~VALID_MODE.indexOf(val)
-      if (!isValidMode) {
-        console.warn(`mode only accept value of ${VALID_MODE}, now get ${val}.`)
-      }
-      return isValidMode
-    },
+    init: function init() {
+      var _this = this;
 
-    _init () {
-      wx.createSelectorQuery()
-        .in(this)
-        .select('.van-notice-bar__content')
-        .boundingClientRect((rect) => {
+      this.getRect('.van-notice-bar__content').then(function (rect) {
+        if (!rect || !rect.width) {
+          return;
+        }
+
+        _this.set({
+          width: rect.width
+        });
+
+        _this.getRect('.van-notice-bar__content-wrap').then(function (rect) {
           if (!rect || !rect.width) {
-            return
+            return;
           }
-          this.setData({
-            width: rect.width
-          })
 
-          wx.createSelectorQuery()
-            .in(this)
-            .select('.van-notice-bar__content-wrap')
-            .boundingClientRect((rect) => {
-              if (!rect || !rect.width) {
-                return
-              }
+          var wrapWidth = rect.width;
+          var _this$data = _this.data,
+              width = _this$data.width,
+              speed = _this$data.speed,
+              scrollable = _this$data.scrollable,
+              delay = _this$data.delay;
 
-              const wrapWidth = rect.width
-              const {
-                width, speed, scrollable, delay
-              } = this.data
+          if (scrollable && wrapWidth < width) {
+            var elapse = width / speed * 1000;
+            var animation = wx.createAnimation({
+              duration: elapse,
+              timeingFunction: 'linear',
+              delay: delay
+            });
+            var resetAnimation = wx.createAnimation({
+              duration: 0,
+              timeingFunction: 'linear'
+            });
 
-              if (scrollable && wrapWidth < width) {
-                const elapse = width / speed * 1000
-                const animation = wx.createAnimation({
-                  duration: elapse,
-                  timeingFunction: 'linear',
-                  delay
-                })
-                const resetAnimation = wx.createAnimation({
-                  duration: 0,
-                  timeingFunction: 'linear'
-                })
-
-                this.setData({
-                  elapse,
-                  wrapWidth,
-                  animation,
-                  resetAnimation
-                }, () => {
-                  this._scroll()
-                })
-              }
-            })
-            .exec()
-        })
-        .exec()
+            _this.set({
+              elapse: elapse,
+              wrapWidth: wrapWidth,
+              animation: animation,
+              resetAnimation: resetAnimation
+            }, function () {
+              _this.scroll();
+            });
+          }
+        });
+      });
     },
+    scroll: function scroll() {
+      var _this2 = this;
 
-    _scroll () {
-      const {
-        animation, resetAnimation, wrapWidth, elapse, speed
-      } = this.data
-      resetAnimation.translateX(wrapWidth).step()
-      const animationData = animation.translateX(-(elapse * speed) / 1000).step()
-      this.setData({
+      var _this$data2 = this.data,
+          animation = _this$data2.animation,
+          resetAnimation = _this$data2.resetAnimation,
+          wrapWidth = _this$data2.wrapWidth,
+          elapse = _this$data2.elapse,
+          speed = _this$data2.speed;
+      resetAnimation.translateX(wrapWidth).step();
+      var animationData = animation.translateX(-(elapse * speed) / 1000).step();
+      this.set({
         animationData: resetAnimation.export()
-      })
-      setTimeout(() => {
-        this.setData({
+      });
+      setTimeout(function () {
+        _this2.set({
           animationData: animationData.export()
-        })
-      }, 100)
-
-      const timer = setTimeout(() => {
-        this._scroll()
-      }, elapse)
-
-      this.setData({
-        timer
-      })
+        });
+      }, 100);
+      var timer = setTimeout(function () {
+        _this2.scroll();
+      }, elapse);
+      this.set({
+        timer: timer
+      });
     },
-
-    _handleButtonClick () {
-      const { timer } = this.data
-      timer && clearTimeout(timer)
-      this.setData({
+    onClickIcon: function onClickIcon() {
+      var timer = this.data.timer;
+      timer && clearTimeout(timer);
+      this.set({
         show: false,
         timer: null
-      })
+      });
     },
-
-    onClick (event) {
-      this.triggerEvent('click', event)
+    onClick: function onClick(event) {
+      this.$emit('click', event);
     }
   }
-})
+});

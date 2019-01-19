@@ -1,19 +1,12 @@
-Component({
-  behaviors: ['wx://form-field'],
-
-  externalClasses: [
-    'input-class'
-  ],
-
-  options: {
-    multipleSlots: true,
-    addGlobalClass: true
-  },
-
-  properties: {
+import { VantComponent } from '../common/component';
+VantComponent({
+  field: true,
+  classes: ['input-class'],
+  props: {
     icon: String,
     label: String,
     error: Boolean,
+    fixed: Boolean,
     focus: Boolean,
     center: Boolean,
     isLink: Boolean,
@@ -24,16 +17,24 @@ Component({
     required: Boolean,
     iconClass: String,
     clearable: Boolean,
-    labelAlign: String,
     inputAlign: String,
     customClass: String,
     confirmType: String,
+    confirmHold: Boolean,
     errorMessage: String,
     placeholder: String,
     customStyle: String,
     useIconSlot: Boolean,
     useButtonSlot: Boolean,
-    placeholderClass: String,
+    showConfirmBar: {
+      type: Boolean,
+      value: true
+    },
+    placeholderStyle: String,
+    adjustPosition: {
+      type: Boolean,
+      value: true
+    },
     cursorSpacing: {
       type: Number,
       value: 50
@@ -41,10 +42,6 @@ Component({
     maxlength: {
       type: Number,
       value: -1
-    },
-    value: {
-      type: null,
-      value: ''
     },
     type: {
       type: String,
@@ -55,78 +52,104 @@ Component({
       value: true
     },
     titleWidth: {
-      type: Number,
-      value: 90
+      type: String,
+      value: '90px'
     }
   },
-
   data: {
-    focused: false,
     showClear: false
   },
-
+  beforeCreate: function beforeCreate() {
+    this.focused = false;
+  },
   methods: {
-    onInput (event) {
-      const {
-        value = ''
-      } = event.detail || {}
-      this.triggerEvent('input', value)
-      this.triggerEvent('change', value)
-      this.setData({
-        value,
-        showClear: this.getShowClear({
-          value
-        })
-      })
+    onInput: function onInput(event) {
+      var _this = this;
+
+      var _ref = event.detail || {},
+          _ref$value = _ref.value,
+          value = _ref$value === void 0 ? '' : _ref$value;
+
+      this.set({
+        value: value,
+        showClear: this.getShowClear(value)
+      }, function () {
+        _this.emitChange(value);
+      });
     },
+    onFocus: function onFocus(event) {
+      var _ref2 = event.detail || {},
+          _ref2$value = _ref2.value,
+          value = _ref2$value === void 0 ? '' : _ref2$value,
+          _ref2$height = _ref2.height,
+          height = _ref2$height === void 0 ? 0 : _ref2$height;
 
-    onFocus (event) {
-      this.triggerEvent('focus', event)
-      this.setData({
-        focused: true,
-        showClear: this.getShowClear({
-          focused: true
-        })
-      })
+      this.$emit('focus', {
+        value: value,
+        height: height
+      });
+      this.focused = true;
+      this.blurFromClear = false;
+      this.set({
+        showClear: this.getShowClear()
+      });
     },
+    onBlur: function onBlur(event) {
+      var _this2 = this;
 
-    onBlur (event) {
-      this.focused = false
-      this.triggerEvent('blur', event)
-      this.setData({
-        focused: false,
-        showClear: this.getShowClear({
-          focused: false
-        })
-      })
+      var _ref3 = event.detail || {},
+          _ref3$value = _ref3.value,
+          value = _ref3$value === void 0 ? '' : _ref3$value,
+          _ref3$cursor = _ref3.cursor,
+          cursor = _ref3$cursor === void 0 ? 0 : _ref3$cursor;
+
+      this.$emit('blur', {
+        value: value,
+        cursor: cursor
+      });
+      this.focused = false;
+      var showClear = this.getShowClear();
+
+      if (this.data.value === value) {
+        this.set({
+          showClear: showClear
+        });
+      } else if (!this.blurFromClear) {
+        // fix: the handwritten keyboard does not trigger input change
+        this.set({
+          value: value,
+          showClear: showClear
+        }, function () {
+          _this2.emitChange(value);
+        });
+      }
     },
-
-    onClickIcon () {
-      this.triggerEvent('clickIcon')
+    onClickIcon: function onClickIcon() {
+      this.$emit('click-icon');
     },
-
-    getShowClear (options) {
-      const {
-        focused = this.data.focused,
-        value = this.data.value
-      } = options
-
-      return this.data.clearable && focused && value !== '' && !this.data.readonly
+    getShowClear: function getShowClear(value) {
+      value = value === undefined ? this.data.value : value;
+      return this.data.clearable && this.focused && value && !this.data.readonly;
     },
+    onClear: function onClear() {
+      var _this3 = this;
 
-    onClear () {
-      this.setData({
+      this.blurFromClear = true;
+      this.set({
         value: '',
-        showClear: this.getShowClear({
-          value: ''
-        })
-      })
-      this.triggerEvent('input', '')
-      this.triggerEvent('change', '')
-    },
+        showClear: this.getShowClear('')
+      }, function () {
+        _this3.emitChange('');
 
-    onConfirm () {
-      this.triggerEvent('confirm', this.data.value)
+        _this3.$emit('clear', '');
+      });
+    },
+    onConfirm: function onConfirm() {
+      this.$emit('confirm', this.data.value);
+    },
+    emitChange: function emitChange(value) {
+      this.$emit('input', value);
+      this.$emit('change', value);
     }
   }
-})
+});
