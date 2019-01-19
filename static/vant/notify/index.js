@@ -1,11 +1,7 @@
-import Notify from './notify'
-
-Component({
-  options: {
-    addGlobalClass: true
-  },
-
-  properties: {
+import { VantComponent } from '../common/component';
+import { RED } from '../common/color';
+VantComponent({
+  props: {
     text: String,
     color: {
       type: String,
@@ -13,37 +9,34 @@ Component({
     },
     backgroundColor: {
       type: String,
-      value: '#e64340'
+      value: RED
     },
     duration: {
       type: Number,
       value: 3000
     }
   },
-
   methods: {
-    show () {
-      const { duration } = this.data
+    show: function show() {
+      var _this = this;
 
-      clearTimeout(this.timer)
-      this.setData({
+      var duration = this.data.duration;
+      clearTimeout(this.timer);
+      this.set({
         show: true
-      })
+      });
 
       if (duration > 0 && duration !== Infinity) {
-        this.timer = setTimeout(() => {
-          this.hide()
-        }, duration)
+        this.timer = setTimeout(function () {
+          _this.hide();
+        }, duration);
       }
     },
-
-    hide () {
-      clearTimeout(this.timer)
-      this.setData({
+    hide: function hide() {
+      clearTimeout(this.timer);
+      this.set({
         show: false
-      })
+      });
     }
   }
-})
-
-export default Notify
+});

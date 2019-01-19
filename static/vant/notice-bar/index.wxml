@@ -8,7 +8,7 @@
     <image src="{{ leftIcon }}" />
   </view>
   <view class="van-notice-bar__content-wrap">
-    <view class="van-notice-bar__content" animation="{{ animationData }}">
+    <view class="van-notice-bar__content {{ scrollable ? '' : 'van-ellipsis' }}" animation="{{ animationData }}">
       {{ text }}
     </view>
   </view>
@@ -17,8 +17,8 @@
     <van-icon
       wx:if="{{ mode === 'closeable' }}"
       class="van-notice-bar__right-icon"
-      name="close"
-      bind:tap="_handleButtonClick"
+      name="cross"
+      bind:tap="onClickIcon"
     />
     <navigator
       wx:if="{{ mode === 'link' }}"
